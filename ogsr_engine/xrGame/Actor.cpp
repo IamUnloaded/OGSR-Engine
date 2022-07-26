@@ -562,6 +562,12 @@ void	CActor::Hit							(SHit* pHDS)
 				HDS.power = hit_power;
 				inherited::Hit(&HDS);
 			}
+
+			callback(GameObject::eHit)(
+				lua_game_object(),
+				HDS.power,
+				HDS.hit_type,
+				smart_cast<const CGameObject*>(HDS.who)->lua_game_object());
 }
 
 void CActor::HitMark	(float P, 
@@ -625,14 +631,12 @@ void CActor::HitMark	(float P,
 			}
 		}
 	}
-
 }
 
 void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element)
 {
 	if (g_Alive()) 
 	{
-
 		// stop-motion
 		if (character_physics_support()->movement()->Environment()==CPHMovementControl::peOnGround || character_physics_support()->movement()->Environment()==CPHMovementControl::peAtWall)
 		{
@@ -656,15 +660,9 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element
 		float power_factor = perc/100.f; clamp(power_factor,0.f,1.f);
 		VERIFY(motion_ID.valid());
 		tpKinematics->PlayFX(motion_ID,power_factor);
-		callback(GameObject::eHit)(
-			lua_game_object(),
-			perc,
-			vLocalDir,
-			smart_cast<const CGameObject*>(who)->lua_game_object(),
-			element
-			);
 	}
 }
+
 void start_tutorial(LPCSTR name);
 void CActor::Die(CObject* who)
 {
